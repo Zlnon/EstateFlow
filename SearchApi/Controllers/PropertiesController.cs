@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using EstateFlow.SearchApi.Data;
 using EstateFlow.SearchApi.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EstateFlow.SearchApi.Controllers
 {
@@ -22,7 +22,8 @@ namespace EstateFlow.SearchApi.Controllers
         public async Task<ActionResult<IEnumerable<Property>>> GetProperties(
             [FromQuery] decimal? minPrice,
             [FromQuery] decimal? maxPrice,
-            [FromQuery] int? minBedrooms)
+            [FromQuery] int? minBedrooms
+        )
         {
             // Start with "All Properties" SIMILER TO FIRESTORE
             var query = _context.Properties.AsQueryable();
