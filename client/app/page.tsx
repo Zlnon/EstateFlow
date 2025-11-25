@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import {
   useQuery,
   QueryClient,
@@ -28,6 +30,24 @@ function EstateDashboard() {
     queryFn: fetchProperties,
   });
 
+  // Check if logged in (Client-side check)
+  const [user, setUser] = useState<{ name: string } | null>(() => {
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("estate_user");
+      if (storedUser) {
+        return JSON.parse(storedUser);
+      }
+    }
+    return null;
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem("estate_token");
+    localStorage.removeItem("estate_user");
+    setUser(null);
+    window.location.reload();
+  };
+
   if (isLoading)
     return <div className="p-10 text-xl">Loading EstateFlow...</div>;
   if (error)
@@ -35,9 +55,38 @@ function EstateDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold mb-8 text-blue-800">
-        🏢 EstateFlow Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-blue-800">
+          🏢 EstateFlow Dashboard
+        </h1>
+
+        {user ? (
+          <div className="flex items-center gap-4">
+            <span className="text-gray-700">
+              Welcome, <b>{user.name}</b>
+            </span>
+            <Link
+              href="/add-property"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              + Add Property
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="text-red-600 hover:underline"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Agent Login
+          </Link>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {properties?.map((property: Property) => (

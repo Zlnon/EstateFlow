@@ -1,13 +1,19 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PropertyController;
 
-// This is the default user route (you can keep or remove it)
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// --- PUBLIC ROUTES (No Key Needed) ---
+Route::post("/register", [AuthController::class, "register"]);
+Route::post("/login", [AuthController::class, "login"])->name("login");
 
-// --- ADD THIS ---
-Route::post('/properties', [PropertyController::class, 'store']);
+// --- PROTECTED ROUTES (Need Valid Token) ---
+Route::group(["middleware" => "auth:api"], function () {
+    // Auth Management
+    Route::post("/logout", [AuthController::class, "logout"]);
+    Route::post("/me", [AuthController::class, "me"]);
+
+    // Business Logic (Now Secured!)
+    Route::post("/properties", [PropertyController::class, "store"]);
+});

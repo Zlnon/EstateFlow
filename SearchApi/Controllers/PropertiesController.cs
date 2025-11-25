@@ -1,6 +1,7 @@
 using EstateFlow.SearchApi.DTOs;
 using EstateFlow.SearchApi.Models;
 using EstateFlow.SearchApi.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EstateFlow.SearchApi.Controllers
