@@ -16,11 +16,8 @@ namespace EstateFlow.SearchApi.Models
         public decimal Price { get; set; }
 
         public int Bedrooms { get; set; }
-        
         public string Address { get; set; } = string.Empty;
-
         public string? ImageUrl { get; set; } // Nullable (?) because image is optional
-
         public DateTime ListedAt { get; set; } = DateTime.UtcNow;
     }
 }

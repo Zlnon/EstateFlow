@@ -1,61 +1,88 @@
-using EstateFlow.SearchApi.Data;
+using EstateFlow.SearchApi.DTOs;
 using EstateFlow.SearchApi.Models;
+using EstateFlow.SearchApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace EstateFlow.SearchApi.Controllers
 {
+    /// <summary>
+    /// Controller for handling property-related API requests.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class PropertiesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IPropertyRepository _repository;
 
-        // 1. Dependency Injection: Asking for the Database
-        public PropertiesController(AppDbContext context)
+        public PropertiesController(IPropertyRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET: api/properties?minPrice=100000&minBedrooms=2
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Property>>> GetProperties(
+        [ProducesResponseType(typeof(IEnumerable<PropertyDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<PropertyDto>>> GetProperties(
             [FromQuery] decimal? minPrice,
             [FromQuery] decimal? maxPrice,
             [FromQuery] int? minBedrooms
         )
         {
-            // Start with "All Properties" SIMILER TO FIRESTORE
-            var query = _context.Properties.AsQueryable();
+            var properties = await _repository.SearchAsync(minPrice, maxPrice, minBedrooms);
 
-            // 2. Apply Filters dynamically using LINQ
-            if (minPrice.HasValue)
-            {
-                query = query.Where(p => p.Price >= minPrice.Value);
-            }
+            // Map Property models to PropertyDto
+            var propertyDtos = properties.Select(MapToDto);
 
-            if (maxPrice.HasValue)
-            {
-                query = query.Where(p => p.Price <= maxPrice.Value);
-            }
-
-            if (minBedrooms.HasValue)
-            {
-                query = query.Where(p => p.Bedrooms >= minBedrooms.Value);
-            }
-
-            // 3. Execute the query (This runs the SELECT SQL)
-            return await query.ToListAsync();
+            return Ok(propertyDtos);
         }
 
-        // POST: api/properties
-        // (Note: In our final app, Laravel will do this. We are adding it here TEMPORARILY just to create test data)
+        /// <summary>
+        /// Gets a single property by its ID.
+        /// </summary>
+        /// <param name="id">The unique identifier of the property</param>
+        // GET: api/properties/5
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(PropertyDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<PropertyDto>> GetProperty(int id)
+        {
+            var property = await _repository.GetByIdAsync(id);
+
+            if (property == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(MapToDto(property));
+        }
+
         [HttpPost]
+        [ProducesResponseType(typeof(Property), StatusCodes.Status201Created)]
         public async Task<ActionResult<Property>> CreateProperty(Property property)
         {
-            _context.Properties.Add(property);
-            await _context.SaveChangesAsync();
-            return Ok(property);
+            // Note: This requires adding a Create method to the repository
+            // For now, keeping direct DbContext access for POST (temporary endpoint)
+            // TODO:In production, Laravel will handle property creation
+            return BadRequest("Property creation should be handled by Laravel API");
+        }
+
+        /// <summary>
+        /// Maps a Property entity to a PropertyDto.
+        /// </summary>
+        /// <param name="property">The property entity to map</param>
+        /// <returns>A PropertyDto with formatted data</returns>
+        private static PropertyDto MapToDto(Property property)
+        {
+            return new PropertyDto
+            {
+                Id = property.Id,
+                Title = property.Title,
+                Price = property.Price,
+                Bedrooms = property.Bedrooms,
+                Address = property.Address,
+                ImageUrl = property.ImageUrl,
+                ListedAt = property.ListedAt,
+            };
         }
     }
 }
