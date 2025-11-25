@@ -14,6 +14,11 @@ Route::group(["middleware" => "auth:api"], function () {
     Route::post("/logout", [AuthController::class, "logout"]);
     Route::post("/me", [AuthController::class, "me"]);
 
-    // Business Logic (Now Secured!)
-    Route::post("/properties", [PropertyController::class, "store"]);
+    // Property Management (All Secured!)
+    // Update routes must come before create to avoid conflicts
+    Route::post("/properties/{id}", [PropertyController::class, "update"]); // For FormData with _method=PUT
+    Route::put("/properties/{id}", [PropertyController::class, "update"]);
+    Route::patch("/properties/{id}", [PropertyController::class, "update"]);
+    Route::delete("/properties/{id}", [PropertyController::class, "destroy"]);
+    Route::post("/properties", [PropertyController::class, "store"]); // Create new property
 });
