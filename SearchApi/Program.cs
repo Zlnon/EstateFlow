@@ -25,6 +25,10 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()); // In production, change this to "http://localhost:3000"
+
+// ---------------------
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
