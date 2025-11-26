@@ -1,9 +1,7 @@
 // src/lib/api.ts
 
-const DOTNET_API_URL = "http://localhost:5026/api";
-
-const LARAVEL_API_URL = "http://127.0.0.1:8000/api";
-
+const DOTNET_API_URL = process.env.NEXT_PUBLIC_SEARCH_API_URL || 'http://localhost:5026/api';
+const LARAVEL_API_URL = process.env.NEXT_PUBLIC_ADMIN_API_URL || 'http://127.0.0.1:8000/api';
 export interface Property {
   id: number;
   title: string;
