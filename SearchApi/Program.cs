@@ -13,7 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlOptions =>
             sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5, 
+                maxRetryCount: 5,
                 maxRetryDelay: TimeSpan.FromSeconds(10),
                 errorNumbersToAdd: null
             )
@@ -53,21 +53,25 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure CORS (Cross-Origin Resource Sharing)
-// Allows your frontend (e.g., React app) to call this API
-// TODO:In production, change AllowAnyOrigin() to specific domain like "http://localhost:3000"
-app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+app.UseCors(policy =>
+    policy
+        .WithOrigins("https://estate-flow-sigma.vercel.app")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+);
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Configure the HTTP request pipelineapp.UseSwagger();
 
+// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.)
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "EstateFlow API V1");
+    c.RoutePrefix = string.Empty; // This makes Swagger load at the root URL (/)
+});
 app.UseHttpsRedirection();
 
 // Map Controllers (this registers your PropertiesController and all other controllers)

@@ -63,7 +63,7 @@ namespace EstateFlow.SearchApi.Controllers
         {
             // Note: This requires adding a Create method to the repository
             // For now, keeping direct DbContext access for POST (temporary endpoint)
-            // TODO:In production, Laravel will handle property creation
+            // In production, Laravel will handle property creation
             return BadRequest("Property creation should be handled by Laravel API");
         }
 
